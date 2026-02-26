@@ -1,3 +1,11 @@
+import './style.css';
+
+const app = document.querySelector('#app');
+
+if (app) {
+  app.textContent = 'Hello, glb-scroll!';
+}
+
 import './style.css'
 import javascriptLogo from './javascript.svg'
 import viteLogo from '/vite.svg'
