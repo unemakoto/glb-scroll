@@ -10,6 +10,12 @@
     "lint": "eslint src --ext .js",
     "format": "prettier --write ."
   },
+  "dependencies": {
+    "gsap": "^3.12.5",
+    "lil-gui": "^0.19.2",
+    "stats.js": "^0.17.0",
+    "three": "^0.167.1"
+  },
   "devDependencies": {
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^9.1.0",
