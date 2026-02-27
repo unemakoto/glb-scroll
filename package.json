@@ -9,6 +9,17 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "autoprefixer": "^10.4.27",
+    "eslint": "^10.0.2",
+    "postcss": "^8.5.6",
+    "prettier": "^3.8.1",
     "vite": "^7.3.1"
-  }
+  },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Edge versions",
+    "safari >= 15",
+    "ios_saf >= 15"
+  ]
 }
