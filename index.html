@@ -1,13 +1,83 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>glb-scroll</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vite App</title>
+  <link rel="stylesheet" href="/src/css/reset.css">
+  <link rel="stylesheet" href="/src/css/loader.css">
+  <script type="module" src="/src/js/index.js"></script>
+  <style>
+    [data-webgl] {
+      outline: 1px #f00 solid;
+      opacity: 0.5;
+    }
+
+    .photo {
+      max-width: 512px;
+      /* height: 256px; */
+      aspect-ratio: 512 / 256;
+      margin-inline: auto;
+    }
+
+    .caption {
+      text-align: center;
+      font-size: 13px;
+      margin-top: 10px;
+      margin-bottom: 400px;
+    }
+
+    #stickyWrap1 {
+      height: 200vh; /* これは残す！ */
+      /* background-color: rgba(255, 0, 0, 0.2); */
+    }
+
+    #stickyWrap2 {
+      height: 250vh; /* これは残す！ */
+      /* background-color: rgba(0, 255, 0, 0.2); */
+    }
+  </style>
+</head>
+
+<body>
+  <header>header</header>
+
+  <div style="text-align: center; margin-top: 200px;">
+    ↓<br>
+    ↓<br>
+    SCROLL<br>
+    ↓<br>
+    ↓
+  </div>
+
+  <div style="margin-top: 100vh;"></div>
+
+  <div id="stickyWrap1">
+    <div class="stickyPart">
+      <!-- 拡大率：20倍、y軸オフセット：-350px -->
+      <!-- <div class="photo" data-webgl="" data-glb="/models/anime_lets_note.glb" data-scale="20" data-offset="-350"></div> -->
+      <div class="photo" data-webgl="" data-glb="/models/letsnote03.glb" data-scale="20" data-offset="-350"></div>
+      <div class="caption">一つ目のglbです。</div>
+    </div>
+  </div>
+
+  <div style="margin: 50vh 0; text-align: center;">
+    （ダミー余白）
+  </div>
+
+  <div id="stickyWrap2">
+    <div class="stickyPart">
+      <!-- 拡大率：2倍、y軸オフセット：-300px -->
+      <div class="photo" data-webgl="" data-glb="/models/iPhone3G.glb" data-scale="2" data-offset="-300"></div>
+      <div class="caption">二つ目のglbです。</div>
+    </div>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <div style="margin-top: 100vh;"></div>
+  <footer>footer</footer>
+</body>
+
 </html>
