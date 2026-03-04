@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --mode wwwcdn",
+    "build-cdn": "vite build --mode wwwcdn",
+    "build-www": "vite build --mode asahicomjp",
     "preview": "vite preview"
   },
   "devDependencies": {

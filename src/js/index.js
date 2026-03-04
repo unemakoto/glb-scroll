@@ -68,8 +68,10 @@ async function init() {
   const pmremGenerator = new PMREMGenerator(world.renderer);
   pmremGenerator.compileEquirectangularShader();
 
+  const IMAGE_BASE = import.meta.env.VITE_IMAGE_BASE || '/images';
+
   rgbeLoader.load(
-    '/images/christmas_photo_studio_04_1k.hdr',
+    `${IMAGE_BASE}/christmas_photo_studio_04_1k.hdr`,
     // 【注意】hdrファイルが/sample17/配下でなく別階層(/une-test/webgl-playground/public/)にあるため、ビルド時のみ以下にパスを差し替える。特異対応。
     // '/une-test/webgl-playground/public/images/christmas_photo_studio_04_1k.hdr',
     function (texture) {
