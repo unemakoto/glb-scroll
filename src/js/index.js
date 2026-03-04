@@ -128,8 +128,8 @@ async function init() {
     markers: true
   });
 
-  // [data-webgl]属性を持つ各DOM要素から GLB モデルを読み込み
-  const elements = document.querySelectorAll('[data-webgl]');
+  // data-glb 属性を持つ各DOM要素から GLB モデルを読み込み
+  const elements = document.querySelectorAll('[data-glb]');
   const prms = Array.from(elements).map(async (el) => {
     // 必要ならテクスチャなどの読み込み（loader 内で処理）
     await loader.getTexByElement(el);

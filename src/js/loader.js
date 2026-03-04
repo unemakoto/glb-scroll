@@ -9,7 +9,7 @@ const loader = {
 }
 
 async function loadAllAssets() {
-  const elements = document.querySelectorAll('[data-webgl]');
+  const elements = document.querySelectorAll('[data-glb]');
   for (const el of elements) { // ここはforEach()でもOK
     const data = el.dataset;
 
