@@ -23,6 +23,17 @@
       margin-bottom: 400px;
     }
 
+    .imageSection{
+      max-width: 600px;
+      margin-inline: auto;
+    }
+
+    @media (max-width: 640px) {
+      .imageSection{
+        margin-inline: 20px;
+      }
+    }
+
     #stickyWrap1 {
       height: 200vh; /* これは残す！ */
       /* background-color: rgba(255, 0, 0, 0.2); */
@@ -60,6 +71,17 @@
       ></div>
       <div class="caption">一つ目のglbです。</div>
     </div>
+  </div>
+
+  <div style="margin: 50vh 0; text-align: center;">
+    （ダミー余白）
+  </div>
+
+  <div class="imageSection">
+    <div>
+      <img src="%VITE_IMAGE_BASE%/slider_1.jpg" alt="画像">
+    </div>
+    <p>これは通常のimgタグの画像です</p>
   </div>
 
   <div style="margin: 50vh 0; text-align: center;">
