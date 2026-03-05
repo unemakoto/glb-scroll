@@ -1,7 +1,14 @@
 @charset "UTF-8";
 
+html {
+  /* 横方向スクロールバー回避 */
+  overflow-x: hidden;
+}
+
 body {
   font-size: 16px;
+  /* 横方向スクロールバー回避 */
+  overflow-x: hidden;
 }
 
 header,
@@ -15,7 +22,7 @@ footer {
 #canvas {
   display: block;
   height: 100vh;
-  width: 100vw;
+  width: 100%; /* 100vwだとスクロールバーが出る */
   position: fixed;
   top: 0;
   left: 0;
