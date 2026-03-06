@@ -26,13 +26,15 @@
 
   <div id="stickyWrap1">
     <div class="stickyPart">
-      <!-- 拡大率：20倍、y軸オフセット：+50px -->
+      <!-- 拡大率：20倍、y軸オフセット：+50px（639px以下でモバイル用 scale/offset） -->
       <div
         data-glb="%VITE_MODEL_BASE%/letsnote03.glb"
         data-scale="20"
         data-offset="50"
+        data-scale-mobile="12"
+        data-offset-mobile="80"
       ></div>
-      <div class="caption">一つ目のglbです。</div>
+      <div class="caption">一つ目のキャプションです。一つ目のキャプションです。</div>
     </div>
   </div>
 
@@ -53,13 +55,15 @@
 
   <div id="stickyWrap2">
     <div class="stickyPart">
-      <!-- 拡大率：2倍、y軸オフセット：+150px -->
+      <!-- 拡大率：2倍、y軸オフセット：+150px（639px以下でモバイル用 scale/offset） -->
       <div
         data-glb="%VITE_MODEL_BASE%/iPhone3G.glb"
         data-scale="2"
         data-offset="150"
+        data-scale-mobile="1.5"
+        data-offset-mobile="120"
       ></div>
-      <div class="caption">二つ目のglbです。</div>
+      <div class="caption">二つ目のキャプションです。二つ目のキャプションです。</div>
     </div>
   </div>
 
