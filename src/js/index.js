@@ -230,7 +230,8 @@ async function init() {
             $: { el },
             rect,
             modelPath,
-            mixer
+            mixer,
+            offsetY
           });
           resolve();
         },
@@ -339,7 +340,7 @@ function updateMeshPosition(obj) {
   const rect = el.getBoundingClientRect();
   const { x, y } = getWorldPosition(rect, canvasRect);
   obj.mesh.position.x = x;
-  obj.mesh.position.y = y;
+  obj.mesh.position.y = y + (obj.offsetY ?? 0);
 }
 
 // リサイズイベントの設定
@@ -369,7 +370,7 @@ function resizeMesh(obj, newCanvasRect) {
   const newRect = el.getBoundingClientRect();
   const { x, y } = getWorldPosition(newRect, newCanvasRect);
   obj.mesh.position.x = x;
-  obj.mesh.position.y = y;
+  obj.mesh.position.y = y + (obj.offsetY ?? 0);
   obj.rect = newRect;
 }
 
