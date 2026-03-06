@@ -29,6 +29,15 @@ footer {
   z-index: -1;
 }
 
+.dummyMargin {
+  height:100vh; 
+  background-color: rgba(0, 0, 255, 0.05);  
+  border: 1px solid #00f; 
+  text-align: center;  
+  display: grid; /* 中央寄せ */
+  place-items: center; /* 中央寄せ */
+}
+
 .caption {
   text-align: center;
   font-size: 13px;
@@ -48,12 +57,12 @@ footer {
 }
 
 /* pin（スクロール中に固定する）のトリガー（レッツノート用） */
-/* #stickyWrap1 {
+#stickyWrap1 {
   background-color: rgba(255, 0, 0, 0.2);
-} */
+}
 
 /* pin（スクロール中に固定する）のトリガー（iPhone用） */
-/* #stickyWrap2 {
+#stickyWrap2 {
   background-color: rgba(0, 255, 0, 0.2);
-} */
+}
 
