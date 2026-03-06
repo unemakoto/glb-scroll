@@ -29,3 +29,38 @@ footer {
   z-index: -1;
 }
 
+.photo {
+  max-width: 512px;
+  /* height: 256px; */
+  aspect-ratio: 512 / 256;
+  margin-inline: auto;
+}
+
+.caption {
+  text-align: center;
+  font-size: 13px;
+  margin-top: 10px;
+  margin-bottom: 400px;
+}
+
+.imageSection{
+  max-width: 600px;
+  margin-inline: auto;
+}
+
+@media (max-width: 640px) {
+  .imageSection{
+    margin-inline: 20px;
+  }
+}
+
+#stickyWrap1 {
+  height: 200vh; /* これは残す！ */
+  background-color: rgba(255, 0, 0, 0.2);
+}
+
+#stickyWrap2 {
+  height: 250vh; /* これは残す！ */
+  background-color: rgba(0, 255, 0, 0.2);
+}
+
