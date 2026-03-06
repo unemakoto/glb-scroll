@@ -21,11 +21,13 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// デバッグモードの設定（必要なら引数を1に）
-window.debug = enableDebugMode(1);
-function enableDebugMode(debug) {
-  return debug && import.meta.env.DEV;
+// デバッグモードの設定（?debug=1 または ?debug=true で有効）
+function enableDebugMode() {
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get('debug');
+  return q === '1' || q === 'true';
 }
+window.debug = enableDebugMode();
 
 const world = {};
 const obj_array = []; // 各 GLB モデルの情報を保持する配列
@@ -118,14 +120,14 @@ async function init() {
     pin: true,
     start: "top center", // トリガー要素の上端が画面中央に来たらピン留め開始
     end: "bottom top",
-    markers: true
+    markers: false
   });
   ScrollTrigger.create({
     trigger: "#stickyWrap2",
     pin: true,
     start: "top center", // トリガー要素の上端が画面中央に来たらピン留め開始
     end: "bottom top",
-    markers: true
+    markers: false
   });
 
   // data-glb 属性を持つ各DOM要素から GLB モデルを読み込み
@@ -213,7 +215,7 @@ async function init() {
                   start: "top 80%",
                   end: "bottom 20%",
                   scrub: true,
-                  markers: true
+                  markers: false
                 },
                 onUpdate: () => {
                   action.time = dummy.time;
