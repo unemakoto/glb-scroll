@@ -36,6 +36,10 @@ const canvas = document.querySelector("#canvas");
 let canvasRect = canvas.getBoundingClientRect();
 
 const MOBILE_BREAKPOINT = 639;
+const PIN_DISTANCE_FACTOR_BY_TRIGGER_ID = {
+  stickyWrap1: 2.0,   // スクロールをstickyさせる量：200vh 相当（レッツノート）
+  stickyWrap2: 2.5  // スクロールをstickyさせる量：250vh 相当（iPhone）
+};
 
 /** 現在のビューポート幅に応じた scale と offsetY を返す（639px以下でモバイル用を使用） */
 function getScaleAndOffsetForViewport(obj) {
@@ -47,6 +51,13 @@ function getScaleAndOffsetForViewport(obj) {
     ? obj.offsetYMobile
     : obj.offsetY;
   return { scale, offsetY };
+}
+
+/** ScrollTrigger の pin 区間を px で返す（end: () => "+=..." 用） */
+function getPinDistancePx(trigger) {
+  const id = typeof trigger === "string" ? trigger.replace(/^#/, "") : trigger?.id;
+  const factor = PIN_DISTANCE_FACTOR_BY_TRIGGER_ID[id] ?? 2;
+  return Math.round(window.innerHeight * factor);
 }
 
 init();
@@ -133,14 +144,16 @@ async function init() {
     trigger: "#stickyWrap1",
     pin: true,
     start: "top center", // トリガー要素の上端が画面中央に来たらピン留め開始
-    end: "bottom top",
+    end: () => `+=${getPinDistancePx("stickyWrap1")}`,
+    invalidateOnRefresh: true,
     markers: false
   });
   ScrollTrigger.create({
     trigger: "#stickyWrap2",
     pin: true,
     start: "top center", // トリガー要素の上端が画面中央に来たらピン留め開始
-    end: "bottom top",
+    end: () => `+=${getPinDistancePx("stickyWrap2")}`,
+    invalidateOnRefresh: true,
     markers: false
   });
 
@@ -239,7 +252,8 @@ async function init() {
                 scrollTrigger: {
                   trigger: triggerEl,
                   start: "top 80%",
-                  end: "bottom 20%",
+                  end: () => `+=${getPinDistancePx(triggerEl)}`,
+                  invalidateOnRefresh: true,
                   scrub: true,
                   markers: false
                 },
@@ -390,6 +404,7 @@ function bindResizeEvents() {
       world.camera.far = viewport.far;
       world.camera.aspect = viewport.aspect;
       world.camera.updateProjectionMatrix();
+      ScrollTrigger.refresh();
     }, 500);
   });
 }

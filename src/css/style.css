@@ -47,13 +47,13 @@ footer {
   }
 }
 
-#stickyWrap1 {
-  height: 200vh; /* スクロールを止める量はここで指定（止めているのはScrollTriggerのpin機能） */
+/* pin（スクロール中に固定する）のトリガー（レッツノート用） */
+/* #stickyWrap1 {
   background-color: rgba(255, 0, 0, 0.2);
-}
+} */
 
-#stickyWrap2 {
-  height: 250vh; /* スクロールを止める量はここで指定（止めているのはScrollTriggerのpin機能） */
+/* pin（スクロール中に固定する）のトリガー（iPhone用） */
+/* #stickyWrap2 {
   background-color: rgba(0, 255, 0, 0.2);
-}
+} */
 
