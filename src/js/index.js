@@ -35,6 +35,20 @@ const obj_array = []; // 各 GLB モデルの情報を保持する配列
 const canvas = document.querySelector("#canvas");
 let canvasRect = canvas.getBoundingClientRect();
 
+const MOBILE_BREAKPOINT = 639;
+
+/** 現在のビューポート幅に応じた scale と offsetY を返す（639px以下でモバイル用を使用） */
+function getScaleAndOffsetForViewport(obj) {
+  const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+  const scale = isMobile && obj.scaleFactorMobile != null
+    ? obj.scaleFactorMobile
+    : obj.scaleFactor;
+  const offsetY = isMobile && obj.offsetYMobile != null
+    ? obj.offsetYMobile
+    : obj.offsetY;
+  return { scale, offsetY };
+}
+
 init();
 async function init() {
   // アセット（画像・動画など）の事前ロード
@@ -137,10 +151,16 @@ async function init() {
     await loader.getTexByElement(el);
     const rect = el.getBoundingClientRect();
 
-    // HTML側属性より GLB ファイルのパス、拡大率、Y軸オフセットを取得
+    // HTML側属性より GLB ファイルのパス、拡大率、Y軸オフセットを取得（モバイル用は639px以下で使用）
     const modelPath = el.getAttribute('data-glb');
     const scaleFactor = Number(el.getAttribute('data-scale')) || 10;
     const offsetY = Number(el.getAttribute('data-offset')) || 0;
+    const scaleFactorMobile = el.hasAttribute('data-scale-mobile')
+      ? Number(el.getAttribute('data-scale-mobile'))
+      : undefined;
+    const offsetYMobile = el.hasAttribute('data-offset-mobile')
+      ? Number(el.getAttribute('data-offset-mobile'))
+      : undefined;
 
     const gltfLoader = new GLTFLoader();
     return new Promise((resolve, reject) => {
@@ -156,8 +176,14 @@ async function init() {
             return;
           }
 
-          // モデルのスケール設定
-          model.scale.set(scaleFactor, scaleFactor, scaleFactor);
+          // モデルのスケール設定（ビューポート幅に応じてデスクトップ/モバイルを切り替え）
+          const scaleOffset = getScaleAndOffsetForViewport({
+            scaleFactor,
+            offsetY,
+            scaleFactorMobile,
+            offsetYMobile
+          });
+          model.scale.set(scaleOffset.scale, scaleOffset.scale, scaleOffset.scale);
 
           // HDR画像が強すぎて反射が白飛びするので対策
           // model.traverse((child) => {
@@ -187,7 +213,7 @@ async function init() {
           // DOM上の位置を3Dワールド座標に変換し、Y軸オフセットを適用
           const { x, y } = getWorldPosition(rect, canvasRect);
           model.position.x = x;
-          model.position.y = y + offsetY;
+          model.position.y = y + scaleOffset.offsetY;
 
           world.scene.add(model);
 
@@ -231,7 +257,10 @@ async function init() {
             rect,
             modelPath,
             mixer,
-            offsetY
+            scaleFactor,
+            offsetY,
+            scaleFactorMobile,
+            offsetYMobile
           });
           resolve();
         },
@@ -339,8 +368,9 @@ function updateMeshPosition(obj) {
   const { el } = obj.$;
   const rect = el.getBoundingClientRect();
   const { x, y } = getWorldPosition(rect, canvasRect);
+  const { offsetY } = getScaleAndOffsetForViewport(obj);
   obj.mesh.position.x = x;
-  obj.mesh.position.y = y + (obj.offsetY ?? 0);
+  obj.mesh.position.y = y + offsetY;
 }
 
 // リサイズイベントの設定
@@ -364,13 +394,15 @@ function bindResizeEvents() {
   });
 }
 
-// Mesh の位置・サイズ再計算
+// Mesh の位置・サイズ再計算（ブレークポイント跨ぎで scale も切り替え）
 function resizeMesh(obj, newCanvasRect) {
   const { el } = obj.$;
   const newRect = el.getBoundingClientRect();
   const { x, y } = getWorldPosition(newRect, newCanvasRect);
+  const { scale, offsetY } = getScaleAndOffsetForViewport(obj);
+  obj.mesh.scale.set(scale, scale, scale);
   obj.mesh.position.x = x;
-  obj.mesh.position.y = y + (obj.offsetY ?? 0);
+  obj.mesh.position.y = y + offsetY;
   obj.rect = newRect;
 }
 
