@@ -57,12 +57,32 @@ footer {
 }
 
 /* pin（スクロール中に固定する）のトリガー（レッツノート用） */
-#stickyWrap1 {
+/* #stickyWrap1 {
   background-color: rgba(255, 0, 0, 0.2);
-}
+} */
 
 /* pin（スクロール中に固定する）のトリガー（iPhone用） */
-#stickyWrap2 {
+/* #stickyWrap2 {
   background-color: rgba(0, 255, 0, 0.2);
+} */
+
+/* キャプション */
+.switchableCaption {
+  max-width: 500px;
+  margin-inline: auto;
+  border: 1px solid #666;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 2px;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
+.switchableCaption ul {
+  padding: 0;
+  margin: 0;
+}
+.switchableCaption ul li {
+  list-style: none;
+}
