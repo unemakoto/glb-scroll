@@ -36,10 +36,6 @@ const canvas = document.querySelector("#canvas");
 let canvasRect = canvas.getBoundingClientRect();
 
 const MOBILE_BREAKPOINT = 639;
-const PIN_DISTANCE_FACTOR_BY_TRIGGER_ID = {
-  stickyWrap1: 2.0,   // スクロールをstickyさせる量：200vh 相当（レッツノート）
-  stickyWrap2: 2.5  // スクロールをstickyさせる量：250vh 相当（iPhone）
-};
 
 /** 現在のビューポート幅に応じた scale と offsetY を返す（639px以下でモバイル用を使用） */
 function getScaleAndOffsetForViewport(obj) {
@@ -53,11 +49,93 @@ function getScaleAndOffsetForViewport(obj) {
   return { scale, offsetY };
 }
 
+function getPinFactor(sectionEl) {
+  const raw = sectionEl?.getAttribute?.("data-pin-factor");
+  const factor = raw != null ? Number(raw) : NaN;
+  return Number.isFinite(factor) && factor > 0 ? factor : 2;
+}
+
 /** ScrollTrigger の pin 区間を px で返す（end: () => "+=..." 用） */
-function getPinDistancePx(trigger) {
-  const id = typeof trigger === "string" ? trigger.replace(/^#/, "") : trigger?.id;
-  const factor = PIN_DISTANCE_FACTOR_BY_TRIGGER_ID[id] ?? 2;
-  return Math.round(window.innerHeight * factor);
+function getPinDistancePx(sectionEl) {
+  return Math.round(window.innerHeight * getPinFactor(sectionEl));
+}
+
+function getStickyPinSectionFromEl(el) {
+  return el?.closest?.("[data-sticky-pin]") ?? null;
+}
+
+function setupPinnedSections() {
+  const sections = document.querySelectorAll("[data-sticky-pin]");
+  sections.forEach((sectionEl) => {
+    ScrollTrigger.create({
+      trigger: sectionEl,
+      pin: true,
+      start: "top center",
+      end: () => `+=${getPinDistancePx(sectionEl)}`,
+      invalidateOnRefresh: true,
+      markers: false
+    });
+  });
+}
+
+const captionHeightControllers = [];
+
+function updateSwitchableCaptionMinHeight(rootEl) {
+  const ul = rootEl?.querySelector?.("ul");
+  if (!ul) return;
+  const items = Array.from(ul.querySelectorAll("li"));
+  if (items.length === 0) return;
+
+  // 表示状態に依存せず高さを測れるよう、display:none は使わない方針
+  const heights = items.map((li) => li.getBoundingClientRect().height);
+  const maxH = Math.max(0, ...heights);
+  ul.style.minHeight = `${Math.ceil(maxH)}px`;
+}
+
+function setupSwitchableCaptions() {
+  const captionRoots = document.querySelectorAll("[data-switchable-caption]");
+  captionRoots.forEach((rootEl) => {
+    const sectionEl = getStickyPinSectionFromEl(rootEl);
+    if (!sectionEl) return;
+
+    const ul = rootEl.querySelector("ul");
+    if (!ul) return;
+
+    const items = Array.from(ul.querySelectorAll("li"));
+    if (items.length === 0) return;
+
+    // 高さを固定（liごとに高さが違う問題の回避）
+    updateSwitchableCaptionMinHeight(rootEl);
+    captionHeightControllers.push(() => updateSwitchableCaptionMinHeight(rootEl));
+
+    // 初期状態
+    gsap.set(items, { autoAlpha: 0 });
+    gsap.set(items[0], { autoAlpha: 1 });
+
+    // pin区間と同じ start/end で、li を順番にフェード切替
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: sectionEl,
+        start: "top center",
+        end: () => `+=${getPinDistancePx(sectionEl)}`,
+        invalidateOnRefresh: true,
+        scrub: true,
+        markers: false
+      }
+    });
+
+    // 1セグメント=1li（最後は出しっぱなし）
+    const fade = 0.25; // セグメント内のフェード比率（0〜1）
+    items.forEach((li, i) => {
+      const segStart = i;
+      const segEnd = i + 1;
+
+      tl.to(li, { autoAlpha: 1, duration: fade, ease: "none" }, segStart);
+      if (i < items.length - 1) {
+        tl.to(li, { autoAlpha: 0, duration: fade, ease: "none" }, segEnd - fade);
+      }
+    });
+  });
 }
 
 init();
@@ -139,23 +217,11 @@ async function init() {
   directionalLight.target.updateMatrixWorld(); // 変更を反映
   world.scene.add(directionalLight);
 
-  // GSAPのScrollTrigger pin 機能で #stickyWrap1 と #stickyWrap2 をピン留め
-  ScrollTrigger.create({
-    trigger: "#stickyWrap1",
-    pin: true,
-    start: "top center", // トリガー要素の上端が画面中央に来たらピン留め開始
-    end: () => `+=${getPinDistancePx("stickyWrap1")}`,
-    invalidateOnRefresh: true,
-    markers: false
-  });
-  ScrollTrigger.create({
-    trigger: "#stickyWrap2",
-    pin: true,
-    start: "top center", // トリガー要素の上端が画面中央に来たらピン留め開始
-    end: () => `+=${getPinDistancePx("stickyWrap2")}`,
-    invalidateOnRefresh: true,
-    markers: false
-  });
+  // pin 対象セクション（data属性）をまとめてピン留め
+  setupPinnedSections();
+
+  // pin区間と同期して、li を順番にフェード切替
+  setupSwitchableCaptions();
 
   // data-glb 属性を持つ各DOM要素から GLB モデルを読み込み
   const elements = document.querySelectorAll('[data-glb]');
@@ -242,8 +308,8 @@ async function init() {
             action.paused = true; // 自動再生を停止し、スクラブで制御
             action.time = 0;
 
-            // このモデルの所属する sticky コンテナ（#stickyWrap1 や #stickyWrap2）をトリガーに設定
-            const triggerEl = el.closest('[id^="stickyWrap"]');
+            // このモデルの所属する sticky セクションをトリガーに設定
+            const triggerEl = getStickyPinSectionFromEl(el);
             if (triggerEl) {
               const dummy = { time: 0 };
               gsap.to(dummy, {
@@ -404,6 +470,8 @@ function bindResizeEvents() {
       world.camera.far = viewport.far;
       world.camera.aspect = viewport.aspect;
       world.camera.updateProjectionMatrix();
+      // キャプションの高さ固定を再計算（改行量が変わるため）
+      captionHeightControllers.forEach((fn) => fn());
       ScrollTrigger.refresh();
     }, 500);
   });

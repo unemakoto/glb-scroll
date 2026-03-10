@@ -42,7 +42,7 @@ footer {
   text-align: center;
   font-size: 13px;
   margin-top: 10px;
-  margin-bottom: 400px;
+  /* margin-bottom: 400px; */
 }
 
 .imageSection{
@@ -82,7 +82,10 @@ footer {
 .switchableCaption ul {
   padding: 0;
   margin: 0;
+  position: relative;
 }
 .switchableCaption ul li {
   list-style: none;
+  position: absolute;
+  inset: 0;
 }
