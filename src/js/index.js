@@ -139,10 +139,25 @@ function setupSwitchableCaptions() {
     items.forEach((li, i) => {
       const segStart = i;
       const segEnd = i + 1;
+      // わずかに左方向へスライドさせる（px単位）
+      const inX = -5;
+      const outX = -5;
 
-      tl.to(li, { autoAlpha: 1, duration: fade, ease: "none" }, segStart);
+      // フェードイン＋スライドイン
+      tl.fromTo(
+        li,
+        { autoAlpha: 0, x: inX },
+        { autoAlpha: 1, x: 0, duration: fade, ease: "none" },
+        segStart
+      );
+
+      // 次の li がある場合のみフェードアウト＋スライドアウト
       if (i < items.length - 1) {
-        tl.to(li, { autoAlpha: 0, duration: fade, ease: "none" }, segEnd - fade);
+        tl.to(
+          li,
+          { autoAlpha: 0, x: 0, duration: fade, ease: "none" },
+          segEnd - fade
+        );
       }
     });
 
