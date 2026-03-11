@@ -70,7 +70,7 @@ footer {
 .switchableCaption {
   max-width: 500px;
   margin-inline: auto;
-  border: 1px solid #666;
+  border: 1px solid #bbb;
   padding: 20px;
   background-color: #fff;
   border-radius: 2px;
@@ -88,4 +88,10 @@ footer {
   list-style: none;
   position: absolute;
   inset: 0;
+}
+
+@media (max-width: 640px) {
+  .switchableCaption {
+    margin-inline: 20px;
+  }
 }

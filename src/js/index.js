@@ -86,10 +86,20 @@ function updateSwitchableCaptionMinHeight(rootEl) {
   const items = Array.from(ul.querySelectorAll("li"));
   if (items.length === 0) return;
 
-  // 表示状態に依存せず高さを測れるよう、display:none は使わない方針
+  // li は CSS で position:absolute; inset:0 のため、このまま測ると ul が潰れていて
+  // 正しい高さが取れない。一時的に static にして自然高さを測る。
+  rootEl.style.visibility = "hidden";
+  items.forEach((li) => {
+    li.style.position = "static";
+  });
+  void rootEl.offsetHeight; // reflow
   const heights = items.map((li) => li.getBoundingClientRect().height);
   const maxH = Math.max(0, ...heights);
   ul.style.minHeight = `${Math.ceil(maxH)}px`;
+  items.forEach((li) => {
+    li.style.position = "";
+  });
+  rootEl.style.visibility = "";
 }
 
 function setupSwitchableCaptions() {
@@ -135,6 +145,12 @@ function setupSwitchableCaptions() {
         tl.to(li, { autoAlpha: 0, duration: fade, ease: "none" }, segEnd - fade);
       }
     });
+
+    // 最後の li が pin 終了間際に出ると読みにくいので、
+    // タイムライン末尾に「ホールド区間」を追加して最後の表示開始を前倒しする。
+    // 例: li が 3 個なら、最後は 50% 付近で表示開始（2 / (2 + 2)）。
+    const lastItemHoldSegments = 2;
+    tl.to({}, { duration: lastItemHoldSegments }, items.length - 1);
   });
 }
 
