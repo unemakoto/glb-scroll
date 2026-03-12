@@ -12,7 +12,6 @@ import {
   PCFSoftShadowMap
 } from "three";
 import viewport from "./viewport";
-import loader from "./loader";
 import GUI from "lil-gui";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
@@ -173,8 +172,6 @@ function setupSwitchableCaptions() {
 
 init();
 async function init() {
-  // アセット（画像・動画など）の事前ロード
-  await loader.loadAllAssets();
   bindResizeEvents();
 
   // レンダラーの設定
@@ -259,8 +256,6 @@ async function init() {
   // data-glb 属性を持つ各DOM要素から GLB モデルを読み込み
   const elements = document.querySelectorAll('[data-glb]');
   const prms = Array.from(elements).map(async (el) => {
-    // 必要ならテクスチャなどの読み込み（loader 内で処理）
-    await loader.getTexByElement(el);
     const rect = el.getBoundingClientRect();
 
     // HTML側属性より GLB ファイルのパス、拡大率、Y軸オフセットを取得（モバイル用は639px以下で使用）
