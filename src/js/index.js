@@ -12,7 +12,6 @@ import {
   PCFSoftShadowMap
 } from "three";
 import viewport from "./viewport";
-import loader from "./loader";
 import GUI from "lil-gui";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
@@ -118,61 +117,61 @@ function setupSwitchableCaptions() {
     updateSwitchableCaptionMinHeight(rootEl);
     captionHeightControllers.push(() => updateSwitchableCaptionMinHeight(rootEl));
 
-    // 初期状態
+    // 初期状態（最初の1つだけ表示）
     gsap.set(items, { autoAlpha: 0 });
-    gsap.set(items[0], { autoAlpha: 1 });
+    let currentIndex = 0;
+    gsap.set(items[currentIndex], { autoAlpha: 1 });
 
-    // pin区間と同じ start/end で、li を順番にフェード切替
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: sectionEl,
-        start: "top center",
-        end: () => `+=${getPinDistancePx(sectionEl)}`,
-        invalidateOnRefresh: true,
-        scrub: true,
-        markers: false
-      }
-    });
-
-    // 1セグメント=1li（最後は出しっぱなし）
-    const fade = 0.25; // セグメント内のフェード比率（0〜1）
-    items.forEach((li, i) => {
-      const segStart = i;
-      const segEnd = i + 1;
-      // わずかに左方向へスライドさせる（px単位）
-      const inX = -5;
-      const outX = -5;
-
-      // フェードイン＋スライドイン
-      tl.fromTo(
-        li,
-        { autoAlpha: 0, x: inX },
-        { autoAlpha: 1, x: 0, duration: fade, ease: "none" },
-        segStart
-      );
-
-      // 次の li がある場合のみフェードアウト＋スライドアウト
-      if (i < items.length - 1) {
-        tl.to(
-          li,
-          { autoAlpha: 0, x: 0, duration: fade, ease: "none" },
-          segEnd - fade
-        );
-      }
-    });
-
-    // 最後の li が pin 終了間際に出ると読みにくいので、
-    // タイムライン末尾に「ホールド区間」を追加して最後の表示開始を前倒しする。
-    // 例: li が 3 個なら、最後は 50% 付近で表示開始（2 / (2 + 2)）。
+    // スクロール進行を複数の「区間」に分割し、
+    // 区間をまたいだ瞬間にのみ fadein/fadeout を発火させる。
+    const fade = 0.25;
     const lastItemHoldSegments = 2;
-    tl.to({}, { duration: lastItemHoldSegments }, items.length - 1);
+    const totalSegments = (items.length - 1) + lastItemHoldSegments;
+
+    const showIndex = (nextIndex) => {
+      if (nextIndex === currentIndex) return;
+      const prevEl = items[currentIndex];
+      const nextEl = items[nextIndex];
+      gsap.killTweensOf([prevEl, nextEl]);
+      gsap.to(prevEl, { autoAlpha: 0, duration: fade, ease: "power1.out" });
+      gsap.to(nextEl, { autoAlpha: 1, duration: fade, ease: "power1.out" });
+      currentIndex = nextIndex;
+    };
+
+    ScrollTrigger.create({
+      trigger: sectionEl,
+      start: "top center",
+      end: () => `+=${getPinDistancePx(sectionEl)}`,
+      invalidateOnRefresh: true,
+      scrub: false, // スクロール位置に連続して追従させず、閾値をまたいだ時だけ反応させる
+      markers: false,
+      onUpdate: (self) => {
+        const progress = self.progress; // 0〜1
+        const segIndex = Math.floor(progress * totalSegments + 1e-6);
+        const clampedSeg = Math.max(0, Math.min(segIndex, totalSegments));
+        const nextIndex = Math.min(items.length - 1, clampedSeg);
+        if (nextIndex !== currentIndex) {
+          showIndex(nextIndex);
+        }
+      },
+      onEnter: () => {
+        // セクションに入ったときは常に最初のキャプションから
+        gsap.set(items, { autoAlpha: 0 });
+        currentIndex = 0;
+        gsap.set(items[currentIndex], { autoAlpha: 1 });
+      },
+      onLeaveBack: () => {
+        // 上方向に抜けて戻ったときも同様にリセット
+        gsap.set(items, { autoAlpha: 0 });
+        currentIndex = 0;
+        gsap.set(items[currentIndex], { autoAlpha: 1 });
+      }
+    });
   });
 }
 
 init();
 async function init() {
-  // アセット（画像・動画など）の事前ロード
-  await loader.loadAllAssets();
   bindResizeEvents();
 
   // レンダラーの設定
@@ -257,8 +256,6 @@ async function init() {
   // data-glb 属性を持つ各DOM要素から GLB モデルを読み込み
   const elements = document.querySelectorAll('[data-glb]');
   const prms = Array.from(elements).map(async (el) => {
-    // 必要ならテクスチャなどの読み込み（loader 内で処理）
-    await loader.getTexByElement(el);
     const rect = el.getBoundingClientRect();
 
     // HTML側属性より GLB ファイルのパス、拡大率、Y軸オフセットを取得（モバイル用は639px以下で使用）
